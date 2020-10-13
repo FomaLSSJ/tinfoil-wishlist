@@ -1,0 +1,29 @@
+{
+  "name": "tinfoil-wishlist",
+  "version": "0.8.1",
+  "description": "A typical Tinfoil app for creating a wishlist",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --debug",
+    "package": "npm-run-all package:*",
+    "package:mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=out --icon=assets/app-icon/mac/app.icns --osx-sign.identity='Developer ID Application: GitHub' --extend-info=assets/mac/info.plist",
+    "package:win": "electron-packager . --overwrite --platform=win32 --arch=x64 --out=out --icon=assets/app-icon/win/app.ico",
+    "package:linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=out",
+    "package:sign-exe": "signcode './out/tinfoil-wishlist-win32-x64/tinfoil-wishlist-win32-x64.exe' --cert ~/tinfoil-wishlist.p12 --prompt --name 'Tinfoil Wishlist' --url 'http://github.com/fomalssj'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^10.1.3",
+    "electron-packager": "^15.1.0"
+  },
+  "dependencies": {
+    "axios": "^0.20.0",
+    "cheerio": "^1.0.0-rc.3",
+    "electron-store": "^6.0.1",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.1"
+  }
+}

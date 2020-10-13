@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/nativize.css">
+  <link rel="stylesheet" href="assets/css/global.css">
+  <link rel="stylesheet" href="assets/css/about.css">
+  <link rel="stylesheet" href="assets/css/nav.css">
+  <link rel="stylesheet" href="assets/css/section.css">
+  <link rel="stylesheet" href="assets/css/demo.css">
+  <link rel="stylesheet" href="assets/css/github.css">
+</head>
+
+<body>
+  <nav id="nav-bar" class="nav js-nav is-shown">
+    <header class="nav-header">
+      <img class="nav-logo" src="assets/img/tinfoil.png" />
+      <h1 class="nav-title">&nbsp;Wishlist</h1>
+    </header>
+
+    <div class="nav-search">
+      <input id="search" class="nav-search-bar" placeholder="Search.." />
+    </div>
+
+    <div id="nav-titles"></div>
+
+    <div class="nav-show-all">
+      <button id="show-all" class="nav-button-show-all">Show all</button>
+    </div>
+
+    <footer class="nav-footer">
+      <div>Ни рубля нинтенде!</div>
+      <svg class="nav-footer-icon"><use xlink:href="assets/img/icons.svg#icon-love"></use></svg>
+    </footer>
+  </nav>
+
+  <main id="content" class="content js-content"></main>
+
+  <nav id="nav-bar" class="nav js-nav">
+    <header class="nav-header">
+      <h1 class="nav-title">Wishlist</h1>
+    </header>
+
+    <div id="wishlist" class="nav-wishlist"></div>
+  </nav>
+
+  <div id="loader" class="loader-wrapper is-show">
+    <div class="loader"></div>
+  </div>
+
+  <script>
+    require('./renderer');
+  </script>
+</body>
+</html>

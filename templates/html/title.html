@@ -1,0 +1,35 @@
+<div id="about-modal" class="about">
+  <div id="navigation" class="navigate-buttons pinned-bottom">
+    <button id="prev-title">Previous</button>
+    <span class="divider">|</span>
+    <button id="add-wishlist">...</button>
+    <span class="divider">|</span>
+    <button id="next-title">Next</button>
+  </div>
+
+  <div class="about-wrapper">
+    <main class="about-sections">
+      <h2><%= name %></h2>
+
+      <pre><strong>ID: </strong> <%= id %>
+<strong>Publisher: </strong><%= publisher %>
+<strong>Release Date: </strong><%= release_date %>
+<strong>size: </strong><%= size %></pre>
+
+      <p><%= description %></p>
+
+      <div class="demo">
+        <div class="demo-wrapper is-open">
+          <button id="manage-window-demo-toggle" class="js-container-target demo-toggle-button">Screenshots
+            <div class="demo-meta u-avoid-clicks">Images <span class="demo-meta-divider">|</span><%- images.length %></div>
+          </button>
+          <div class="demo-box">
+            <% images.forEach((image) => { %>
+              <img src="<%- image %>" />
+            <% }); %>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
