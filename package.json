@@ -7,9 +7,9 @@
     "start": "electron .",
     "dev": "electron . --debug",
     "package": "npm-run-all package:*",
-    "package:mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=out --icon=assets/app-icon/mac/app.icns --osx-sign.identity='Developer ID Application: GitHub' --extend-info=assets/mac/info.plist",
-    "package:win": "electron-packager . --overwrite --platform=win32 --arch=x64 --out=out --icon=assets/app-icon/win/app.ico",
-    "package:linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=out",
+    "package:mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --asar --prune=true --out=out --icon=assets/app-icon/mac/app.icns --osx-sign.identity='Developer ID Application: GitHub' --extend-info=assets/mac/info.plist",
+    "package:win": "electron-packager . --overwrite --platform=win32 --arch=x64 --asar --prune=true --out=out --icon=assets/app-icon/win/app.ico --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Tinfoul Wishlist\"",
+    "package:linux": "electron-packager . --overwrite --platform=linux --arch=x64 --asar --prune=true --out=out",
     "package:sign-exe": "signcode './out/tinfoil-wishlist-win32-x64/tinfoil-wishlist-win32-x64.exe' --cert ~/tinfoil-wishlist.p12 --prompt --name 'Tinfoil Wishlist' --url 'http://github.com/fomalssj'"
   },
   "keywords": [
