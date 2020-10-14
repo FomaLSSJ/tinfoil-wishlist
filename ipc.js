@@ -33,7 +33,9 @@ function init() {
   });
 
   ipcMain.on('get-titles-items', (event) => {
-    event.returnValue = StoreTitles.getAll();
+    const titlesJson = StoreTitles.getAll();
+
+    event.reply('update-titles', titlesJson);
   });
 
   ipcMain.on('get-title-current', (event) => {
@@ -44,8 +46,11 @@ function init() {
     event.returnValue = StoreTitles.limit(offset);
   });
 
-  ipcMain.on('search-titles-items', (event, name) => {
-    event.returnValue = StoreTitles.search(name);
+  ipcMain.on('search-titles-items', (event, input) => {
+    const titles = StoreTitles.search(input);
+
+    event.reply('update-titles', titles);
+    event.reply('loader', false);
   });
 
   ipcMain.on('get-wishlist-items', (event) => {
@@ -70,7 +75,7 @@ function init() {
 
     StoreTitles.put(titlesParse);
 
-    event.reply('put-titles');
+    event.reply('update-titles', StoreTitles.limit(100));
     event.reply('loader', false);
   });
 }

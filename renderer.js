@@ -12,9 +12,8 @@ ipcRenderer.on('loader', (event, value) => {
   DOM.toggleLoaderClass(value);
 });
 
-ipcRenderer.on('put-titles', async (event) => {
-  const titlesJson = ipcRenderer.sendSync('limit-titles-items', 100);
-  const titlesHtml = Templates.listButton(titlesJson);
+ipcRenderer.on('update-titles', (event, titles) => {
+  const titlesHtml = Templates.listButton(titles);
 
   DOM.replaceNavTitlesHtml(titlesHtml);
 });

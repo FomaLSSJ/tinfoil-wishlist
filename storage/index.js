@@ -1,4 +1,5 @@
 const Store = require('electron-store');
+const moment = require('moment');
 const { find, findIndex, filter, orderBy, slice, remove, isEmpty } = require('lodash');
 
 class DataStore extends Store {
@@ -62,6 +63,8 @@ class DataStore extends Store {
 
   search(name) {
     const [ tag, req ] = name.split(':');
+    let dateStart;
+    let dateEnd;
 
     switch (tag) {
       case 'pub':
@@ -70,14 +73,32 @@ class DataStore extends Store {
         return filter(this.items, (item) => item.id && item.id.search(new RegExp(req, 'i')) !== -1);
       case 'rel':
         return filter(this.items, (item) => item.release_date && item.release_date.search(new RegExp(req, 'i')) !== -1);
+      case 'lmt':
+        const [ limit, offset ] = req.split(',');
+        if (!limit) return;
+        return this.limit(Number(limit), Number(offset || 0));
+      case 'from':
+        dateStart = moment(req);
+        return filter(this.items, (item) => moment(item.timestamp) >= dateStart);
+      case 'to':
+        dateEnd = moment(req);
+        return filter(this.items, (item) => moment(item.timestamp) <= dateEnd);
+      case 'fromto':
+        const [ from, to ] = req.split(',');
+        dateStart = moment(from);
+        dateEnd = moment(to);
+        return filter(this.items, (item) => {
+          const date = moment(item.timestamp);
+          return date >= dateStart && date <= dateEnd;
+        });
       default:
         return filter(this.items, (item) => item.name && item.name.search(new RegExp(name, 'i')) !== -1);
     }
   }
 
-  limit(offset = 100) {
+  limit(limit = 100, offset = 0) {
     this.items = this.get(this.name) || [];
-    return slice(this.items, 0, offset);
+    return slice(this.items, offset, limit + offset);
   }
 }
 

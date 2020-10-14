@@ -5,34 +5,30 @@ const Templates = require('../templates');
 
 class DOM {
   static handlerSearchKeydown() {
-    if (!document) {
-      return;
-    }
+    const input = document.querySelector('#search');
+    if (!input) return;
 
-    document.querySelector('#search').onkeydown = (event) => {
+    input.onkeydown = (event) => {
       if(event.keyCode === 13) {
         DOM.toggleLoaderClass(true);
-
-        const titlesJson = ipcRenderer.sendSync('search-titles-items', event.target.value);
-        const titlesHtml = Templates.listButton(titlesJson);
-
-        DOM.replaceNavTitlesHtml(titlesHtml);
         DOM.toggleShowAllButtonDisabled(false);
-        DOM.handlerImageButtonClick();
-        DOM.updateImageButtonClass();
-        DOM.toggleLoaderClass(false);
+
+        const input = event.target.value;
+        if (isEmpty(input));
+
+        ipcRenderer.send('search-titles-items', input);
       }
     };
   }
 
   static handlerImageButtonClick() {
-    if (!document) {
-      return;
-    }
+    const buttons = document.querySelectorAll('.nav-image-button')
+    if (isEmpty(buttons)) return;
 
-    document.querySelectorAll('.nav-image-button').forEach(((elem) => {
+    buttons.forEach(((elem) => {
       elem.addEventListener('click', async (event) => {
         event.preventDefault();
+
         DOM.toggleLoaderClass(true);
 
         const id = event.target.getAttribute('title-id')
@@ -45,9 +41,13 @@ class DOM {
   }
 
   static handlerWishlistLinkClick() {
-    document.querySelectorAll('.nav-wishlist-item').forEach((elem) => {
+    const links = document.querySelectorAll('.nav-wishlist-item');
+    if (isEmpty(links)) return;
+
+    links.forEach((elem) => {
       elem.addEventListener('click', async (event) => {
         event.preventDefault();
+
         DOM.toggleLoaderClass(true);
 
         const id = event.target.getAttribute('title-id');
@@ -58,50 +58,40 @@ class DOM {
   }
 
   static handlerShowAllButtonClick() {
-    document.querySelector('#show-all').addEventListener('click', (event) => {
+    const button = document.querySelector('#show-all');
+    if (!button) return;
+
+    button.addEventListener('click', (event) => {
       event.preventDefault();
 
-      const titlesJson = ipcRenderer.sendSync('get-titles-items');
-      const titlesHtml = Templates.listButton(titlesJson);
-
+      DOM.toggleLoaderClass(true);
       DOM.toggleShowAllButtonDisabled(true);
-      DOM.replaceNavTitlesHtml(titlesHtml);
-      DOM.updateImageButtonClass();
-      DOM.handlerImageButtonClick();
+
+      ipcRenderer.send('get-titles-items');
     });
   }
 
   static toggleShowAllButtonDisabled(value) {
-    if (!document) {
-      return;
-    }
-
     const button = document.querySelector('#show-all');
-
+    if (!button) return;
     button.disabled = value;
   }
 
   static toggleWishlistButtonLabel(has) {
     const button = document.querySelector('#add-wishlist');
-
+    if (!button) return;
     has ? button.innerHTML = 'Remove' : button.innerHTML = 'Add';
   }
 
   static toggleLoaderClass(value) {
-    if (!document) {
-      return;
-    }
-
     const loader = document.querySelector('#loader');
-
+    if (!loader) return;
     value ? loader.classList.add('is-show') : loader.classList.remove('is-show');
   }
 
   static replaceNavTitlesHtml(data) {
-    if (!document) return;
-
     const navbar = document.getElementById('nav-titles');
-    
+    if (!navbar) return;
     navbar.innerHTML = data;
 
     DOM.handlerImageButtonClick();
@@ -110,12 +100,8 @@ class DOM {
   }
 
   static replaceContentTitleHtml(data, hasTitle) {
-    if (!document) {
-      return;
-    }
-
     const content = document.getElementById('content');
-
+    if (!content) return;
     content.innerHTML = data;
 
     DOM.toggleWishlistButtonLabel(hasTitle);
@@ -124,26 +110,21 @@ class DOM {
   }
 
   static replaceWishlistLinkHtml(items) {
-    if (!document) {
-      return;
-    }
-
     const container = document.getElementById('wishlist');
+    if (!container) return;
     container.innerHTML = Templates.wishlist({ items });
 
     DOM.handlerWishlistLinkClick();
   }
   
   static updateImageButtonClass() {
-    if (!document) {
-      return;
-    }
-
     const current = ipcRenderer.sendSync('get-title-current');
     const items = ipcRenderer.sendSync('get-wishlist-items');
     const ids = items.map((x) => x.id);
-
-    document.querySelectorAll('.nav-image-button').forEach((elem) => {
+    const buttons = document.querySelectorAll('.nav-image-button');
+    if (isEmpty(buttons)) return;
+    
+    buttons.forEach((elem) => {
       current && elem.id === current.id
         ? elem.classList.add('is-selected')
         : elem.classList.remove('is-selected');

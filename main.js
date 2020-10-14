@@ -123,8 +123,10 @@ function createWindow () {
       StoreTitles.put(titlesParse);
     }
 
+    const titles = StoreTitles.limit(100);
+
     mainWindow.webContents.send('is-ready');
-    mainWindow.webContents.send('put-titles');
+    mainWindow.webContents.send('update-titles', titles);
     mainWindow.webContents.send('update-wishlist');
     mainWindow.webContents.send('loader', false);
   });
