@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
+const { app, BrowserWindow, Menu, dialog, shell, clipboard } = require('electron');
 const path = require('path');
 
 const { StoreTitles } = require('./storage');
@@ -51,6 +51,16 @@ function createWindow () {
     {
       label: 'Edit',
       submenu: [
+        {
+          label: 'Copy title link',
+          accelerator: 'CmdOrCtrl+Shift+C',
+          click: async () => {
+            const { id } = StoreTitles.current;
+            if (!id) return;
+            clipboard.writeText(`${ Request.titleUrl }/${ id }`);
+          }
+        },
+        { type: 'separator' },
         { role: 'undo' },
         { role: 'redo' },
         { type: 'separator' },
@@ -102,9 +112,9 @@ function createWindow () {
       role: 'help',
       submenu: [
         {
-          label: 'GitHub',
+          label: 'GitHub Repo',
           click: async () => {
-            await shell.openExternal('https://github.com/fomalssj')
+            await shell.openExternal('https://github.com/fomalssj/tinfoil-wishlist')
           }
         }
       ]

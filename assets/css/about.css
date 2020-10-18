@@ -23,6 +23,11 @@
   margin: 5%;
 }
 
+.about-wrapper pre {
+  column-count: 2;
+  column-width: 280px;
+}
+
 .about-header {
   padding: var(--about-space) 0;
   border-bottom: 1px solid hsl(0,0%,88%);

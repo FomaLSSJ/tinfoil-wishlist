@@ -1,13 +1,24 @@
 const { default: axios } = require('axios');
-
-const baseUrl = 'https://tinfoil.media';
+const moment = require('moment');
 
 class Request {
+  static get baseUrl() {
+    return 'https://tinfoil.media';
+  }
+
+  static get titleUrl() {
+    return `${ Request.baseUrl }/Title`;
+  }
+
+  static get apiJsonUrl() {
+    return `${ Request.titleUrl }/ApiJson`
+  }
+
   static async titles() {
-    const randomCacheNumber = Math.floor(Math.random() * 2000000000000);
+    const randomCacheNumber = moment().unix();
 
     try {
-      const { data: { data } } = await axios.get(`${ baseUrl }/Title/ApiJson/?_=${ randomCacheNumber }`);
+      const { data: { data } } = await axios.get(`${ Request.apiJsonUrl }/?_=${ randomCacheNumber }`);
 
       return data;
     } catch (err) {
@@ -17,7 +28,7 @@ class Request {
 
   static async title(id) {
     try {
-      const { data } = await axios.get(`${ baseUrl }/Title/${ id }`);
+      const { data } = await axios.get(`${ Request.titleUrl }/${ id }`);
 
       return data;
     } catch (err) {
