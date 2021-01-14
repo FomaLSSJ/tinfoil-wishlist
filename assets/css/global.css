@@ -28,6 +28,9 @@ body {
   margin: 0;
   height: 100%;
   display: flex;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 a {

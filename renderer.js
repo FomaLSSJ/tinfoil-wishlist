@@ -6,6 +6,7 @@ const Templates = require('./templates');
 ipcRenderer.on('is-ready', () => {
   DOM.handlerSearchKeydown();
   DOM.handlerShowAllButtonClick();
+  DOM.replaceSelectListHtml();
 });
 
 ipcRenderer.on('loader', (event, value) => {

@@ -1,9 +1,41 @@
-const { ipcRenderer } = require('electron');
-const { isEmpty } = require('lodash');
-
+const { ipcRenderer, remote } = require('electron');
+const { Menu, MenuItem } = remote;
+const { isEmpty, get, lowerCase, startCase } = require('lodash');
 const Templates = require('../templates');
+const { LISTS } = require('../storage/constants');
 
 class DOM {
+  static menuWishlistButton(params) {
+    const { id, name, size } = params;
+    const current = ipcRenderer.sendSync('get-title-current');
+
+    if (!id) return;
+
+    const item = ipcRenderer.sendSync('get-wishlist-item', id);
+    const menu = new Menu();
+
+    Object.keys(LISTS).forEach((key) => {
+      if (get(item, 'entries', []).includes(LISTS[ key ])) return;
+
+      const menuItem = new MenuItem({
+        label: `To "${ LISTS[ key ].replace('_', ' ') }"`,
+        click: () => {
+          ipcRenderer.sendSync('has-title', id)
+            ? ipcRenderer.sendSync('add-item-to-list', id, LISTS[ key ])
+            : ipcRenderer.sendSync('add-wishlist-item', { id, name, size }, LISTS[ key ]);
+
+          if (get(current, 'id') === id) DOM.toggleWishlistButtonLabel(true);
+          DOM.replaceWishlistLinkHtml();
+          DOM.updateImageButtonClass();
+        }
+      });
+
+      menu.append(menuItem);
+    });
+
+    return menu;
+  }
+
   static handlerSearchKeydown() {
     const input = document.querySelector('#search');
     if (!input) return;
@@ -54,6 +86,15 @@ class DOM {
 
         ipcRenderer.send('request-title', id);
       });
+
+      elem.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+
+        const id = event.target.getAttribute('title-id');
+        const item = ipcRenderer.sendSync('get-wishlist-item', id);
+
+        DOM.menuWishlistButton(item).popup(remote.getCurrentWindow());
+      });
     });
   }
 
@@ -68,6 +109,66 @@ class DOM {
       DOM.toggleShowAllButtonDisabled(true);
 
       ipcRenderer.send('get-titles-items');
+    });
+  }
+
+  static handleNavigationButtonClick() {
+    const buttonToWishlist = document.querySelector('#add-wishlist');
+    const buttonSpoiler = document.querySelector('.js-container-target');
+    const buttonPrevious = document.querySelector('#prev-title');
+    const buttonNext = document.querySelector('#next-title');
+
+    if (buttonToWishlist) {
+      buttonToWishlist.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        DOM.eventToWishlist();
+      });
+
+      buttonToWishlist.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+
+        const item = ipcRenderer.sendSync('get-title-current');
+
+        DOM.menuWishlistButton(item).popup(remote.getCurrentWindow());
+      });
+    }
+
+    if (buttonPrevious) {
+      buttonPrevious.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        DOM.eventTitlePrevious();
+      });
+    }
+
+    if (buttonNext) {
+      buttonNext.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        DOM.eventTitleNext();
+      });
+    }
+
+    if (buttonSpoiler) {
+      buttonSpoiler.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        event.target.parentElement.classList.toggle('is-open');
+      });
+    };
+  }
+
+  static handlerSelectItemClick() {
+    const select = document.querySelector('.nav-select-list #select');
+
+    if (!select) return;
+
+    select.selectedIndex = 0;
+    select.addEventListener('change', (event) => {
+      ipcRenderer.sendSync('set-wishlist-list', select.value);
+      
+      DOM.replaceWishlistLinkHtml();
     });
   }
 
@@ -109,12 +210,26 @@ class DOM {
     DOM.toggleLoaderClass(false);
   }
 
-  static replaceWishlistLinkHtml(items) {
+  static replaceWishlistLinkHtml() {
     const container = document.getElementById('wishlist');
     if (!container) return;
+    const items = ipcRenderer.sendSync('get-list-items');
     container.innerHTML = Templates.wishlist({ items });
 
     DOM.handlerWishlistLinkClick();
+  }
+
+  static replaceSelectListHtml() {
+    const container = document.getElementById('select');
+    if (!container) return;
+    
+    const items = Object.keys(LISTS).map((x) => {
+      return { name: startCase(lowerCase(x)), value: LISTS[ x ] };
+    });
+
+    container.innerHTML = Templates.select({ items });
+
+    DOM.handlerSelectItemClick();
   }
   
   static updateImageButtonClass() {
@@ -148,55 +263,14 @@ class DOM {
     }
   }
 
-  static handleNavigationButtonClick() {
-    const buttonToWishlist = document.querySelector('#add-wishlist');
-    const buttonSpoiler = document.querySelector('.js-container-target');
-    const buttonPrevious = document.querySelector('#prev-title');
-    const buttonNext = document.querySelector('#next-title');
-
-    if (buttonToWishlist) {
-      buttonToWishlist.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        DOM.eventToWishlist();
-      });
-    }
-
-    if (buttonPrevious) {
-      buttonPrevious.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        DOM.eventTitlePrevious();
-      });
-    }
-
-    if (buttonNext) {
-      buttonNext.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        DOM.eventTitleNext();
-      });
-    }
-
-    if (buttonSpoiler) {
-      buttonSpoiler.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        event.target.parentElement.classList.toggle('is-open');
-      });
-    };
-  }
-
   static eventToWishlist() {
     const { id, name, size } = ipcRenderer.sendSync('get-title-current');
     if (!id) return;
     const has = ipcRenderer.sendSync('has-title', id);
-    const items = has
-      ? ipcRenderer.sendSync('delete-wishlist-item', (id))
-      : ipcRenderer.sendSync('add-wishlist-item', { id, name, size });
+    has ? ipcRenderer.sendSync('delete-wishlist-item', (id)) : ipcRenderer.sendSync('add-wishlist-item', { id, name, size });
 
     DOM.toggleWishlistButtonLabel(!has);
-    DOM.replaceWishlistLinkHtml(items);
+    DOM.replaceWishlistLinkHtml();
     DOM.updateImageButtonClass();
   }
 

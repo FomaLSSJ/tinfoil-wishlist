@@ -61,12 +61,25 @@ function init() {
     event.returnValue = StoreWishlist.getById(id);
   });
 
-  ipcMain.on('add-wishlist-item', (event, item) => {
-    event.returnValue = StoreWishlist.create(item);
+  ipcMain.on('add-wishlist-item', (event, item, list) => {
+    event.returnValue = StoreWishlist.create(item, list);
   });
 
   ipcMain.on('delete-wishlist-item', (event, id) => {
-    event.returnValue = StoreWishlist.delete(id);
+    event.returnValue = StoreWishlist.deleteById(id);
+  });
+
+  ipcMain.on('add-item-to-list', (event, id, list) => {
+    event.returnValue = StoreWishlist.addTo(id, list);
+  });
+
+  ipcMain.on('set-wishlist-list', (event, value) => {
+    StoreWishlist.currentList = value;
+    event.returnValue = StoreWishlist.getList();
+  });
+
+  ipcMain.on('get-list-items', (event) => {
+    event.returnValue = StoreWishlist.getList();
   });
 
   ipcMain.on('update-database', async (event) => {

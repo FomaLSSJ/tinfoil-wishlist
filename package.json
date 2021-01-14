@@ -1,6 +1,6 @@
 {
   "name": "tinfoil-wishlist",
-  "version": "0.8.5",
+  "version": "0.9.8",
   "description": "A typical Tinfoil app for creating a wishlist",
   "main": "main.js",
   "scripts": {
