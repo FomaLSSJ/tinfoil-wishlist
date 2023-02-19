@@ -1,4 +1,5 @@
-const { ipcRenderer, remote } = require('electron');
+const { ipcRenderer } = require('electron');
+const remote = require('@electron/remote');
 const { Menu, MenuItem } = remote;
 const { isEmpty, get, lowerCase, startCase } = require('lodash');
 const Templates = require('../templates');

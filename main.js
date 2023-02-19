@@ -1,4 +1,5 @@
 const { app, BrowserWindow, Menu, dialog, shell, clipboard } = require('electron');
+const remoteMain = require('@electron/remote/main');
 const path = require('path');
 
 const { StoreTitles } = require('./storage');
@@ -11,6 +12,7 @@ const debug = false;
 let mainWindow = null;
 
 app.requestSingleInstanceLock();
+remoteMain.initialize();
 
 app.on('second-instance', () => {
   if (mainWindow) {
@@ -27,11 +29,12 @@ function createWindow () {
     show: false,
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true,
+      contextIsolation: false,
       preload: path.join(__dirname, 'preload.js'),
     }
   });
 
+  remoteMain.enable(mainWindow.webContents);
   mainWindow.loadFile('index.html');
 
   const menuTemplate = Menu.buildFromTemplate([
