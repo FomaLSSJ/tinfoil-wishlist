@@ -253,12 +253,12 @@
   border-style: solid;
 }
 
-.nav-show-all {
+.nav-show-content {
   padding: .5rem;
   text-align: center;
 }
 
-.nav-show-all .nav-button-show-all {
+.nav-show-content .nav-button-show-content {
   border-radius: 8px;
   width: 90%;
   border: 1px #f1f1f1;

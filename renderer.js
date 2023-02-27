@@ -5,6 +5,7 @@ const Templates = require('./templates');
 
 ipcRenderer.on('is-ready', () => {
   DOM.handlerSearchKeydown();
+  DOM.handleShowMoreButtonClick();
   DOM.handlerShowAllButtonClick();
   DOM.replaceSelectListHtml();
 });
@@ -51,4 +52,10 @@ ipcRenderer.on('change-title-next', () => {
 
 ipcRenderer.on('change-title-previous', () => {
   DOM.eventTitlePrevious();
+});
+
+ipcRenderer.on('update-categories', () => {
+  const categories = ipcRenderer.sendSync('get-categories-items');
+
+  DOM.updateCategoriesSelect();
 });

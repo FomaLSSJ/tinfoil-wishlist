@@ -1,38 +1,37 @@
 const { ipcRenderer } = require('electron');
 const remote = require('@electron/remote');
 const { Menu, MenuItem } = remote;
-const { isEmpty, get, lowerCase, startCase } = require('lodash');
+const { isEmpty, get, map } = require('lodash');
 const Templates = require('../templates');
-const { LISTS } = require('../storage/constants');
+const { StoreTitles } = require('../storage');
 
 class DOM {
   static menuWishlistButton(params) {
     const { id, name, size } = params;
-    const current = ipcRenderer.sendSync('get-title-current');
 
     if (!id) return;
 
     const item = ipcRenderer.sendSync('get-wishlist-item', id);
+    const categories = ipcRenderer.sendSync('get-categories-items');
     const menu = new Menu();
 
-    Object.keys(LISTS).forEach((key) => {
-      if (get(item, 'entries', []).includes(LISTS[ key ])) return;
+    for (const category of categories) {
+      const labelPrefix = get(item, 'entries', []).includes(category.id) ? 'Remove from' : 'Add to';
 
       const menuItem = new MenuItem({
-        label: `To "${ LISTS[ key ].replace('_', ' ') }"`,
+        label: `${labelPrefix} ${ category.name }"`,
         click: () => {
-          ipcRenderer.sendSync('has-title', id)
-            ? ipcRenderer.sendSync('add-item-to-list', id, LISTS[ key ])
-            : ipcRenderer.sendSync('add-wishlist-item', { id, name, size }, LISTS[ key ]);
+          ipcRenderer.sendSync('create-or-update-wishlist-item', { id, name, size }, category.id);
+          const has = ipcRenderer.sendSync('has-title', id);
 
-          if (get(current, 'id') === id) DOM.toggleWishlistButtonLabel(true);
+          DOM.toggleWishlistButtonLabel(has);
           DOM.replaceWishlistLinkHtml();
           DOM.updateImageButtonClass();
         }
       });
 
       menu.append(menuItem);
-    });
+    }
 
     return menu;
   }
@@ -96,6 +95,21 @@ class DOM {
 
         DOM.menuWishlistButton(item).popup(remote.getCurrentWindow());
       });
+    });
+  }
+
+  static handleShowMoreButtonClick() {
+    const button = document.querySelector('#show-more');
+    if (!button) return;
+
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+
+      DOM.toggleLoaderClass(true);
+
+      const offset = ipcRenderer.sendSync('get-titles-offset');
+
+      ipcRenderer.send('search-titles-items', `lmt:${ offset + 100 }`);
     });
   }
 
@@ -224,8 +238,10 @@ class DOM {
     const container = document.getElementById('select');
     if (!container) return;
     
-    const items = Object.keys(LISTS).map((x) => {
-      return { name: startCase(lowerCase(x)), value: LISTS[ x ] };
+    const categories = ipcRenderer.sendSync('get-categories-items');
+
+    const items = map(categories, (item) => {
+      return { name: item.name, value: item.id };
     });
 
     container.innerHTML = Templates.select({ items });
@@ -268,7 +284,7 @@ class DOM {
     const { id, name, size } = ipcRenderer.sendSync('get-title-current');
     if (!id) return;
     const has = ipcRenderer.sendSync('has-title', id);
-    has ? ipcRenderer.sendSync('delete-wishlist-item', (id)) : ipcRenderer.sendSync('add-wishlist-item', { id, name, size });
+    has ? ipcRenderer.sendSync('delete-wishlist-item', (id)) : ipcRenderer.sendSync('create-or-update-wishlist-item', { id, name, size });
 
     DOM.toggleWishlistButtonLabel(!has);
     DOM.replaceWishlistLinkHtml();

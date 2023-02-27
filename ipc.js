@@ -1,6 +1,6 @@
 const { dialog, ipcMain } = require('electron');
 
-const { StoreTitles, StoreWishlist } = require('./storage');
+const { StoreTitles, StoreWishlist, StoreCategories } = require('./storage');
 const Request = require('./request');
 const Parser = require('./parser');
 
@@ -46,11 +46,20 @@ function init() {
     event.returnValue = StoreTitles.limit(offset);
   });
 
-  ipcMain.on('search-titles-items', (event, input) => {
+  ipcMain.on('search-titles-items', (event, input) => {s
+    if (input.startsWith('lmt:')) {
+      const [ _, offset ] = input.split(':');
+      StoreTitles.offset = Number(offset);
+    }
+
     const titles = StoreTitles.search(input);
 
     event.reply('update-titles', titles);
     event.reply('loader', false);
+  });
+
+  ipcMain.on('get-titles-offset', (event) => {
+    event.returnValue = StoreTitles.offset;
   });
 
   ipcMain.on('get-wishlist-items', (event) => {
@@ -61,16 +70,12 @@ function init() {
     event.returnValue = StoreWishlist.getById(id);
   });
 
-  ipcMain.on('add-wishlist-item', (event, item, list) => {
-    event.returnValue = StoreWishlist.create(item, list);
+  ipcMain.on('create-or-update-wishlist-item', (event, item, list) => {
+    event.returnValue = StoreWishlist.createOrUpdate(item, list);
   });
 
   ipcMain.on('delete-wishlist-item', (event, id) => {
     event.returnValue = StoreWishlist.deleteById(id);
-  });
-
-  ipcMain.on('add-item-to-list', (event, id, list) => {
-    event.returnValue = StoreWishlist.addTo(id, list);
   });
 
   ipcMain.on('set-wishlist-list', (event, value) => {
@@ -90,6 +95,10 @@ function init() {
 
     event.reply('update-titles', StoreTitles.limit(100));
     event.reply('loader', false);
+  });
+
+  ipcMain.on('get-categories-items', async (event) => {
+    event.returnValue = StoreCategories.getAll();
   });
 }
 
