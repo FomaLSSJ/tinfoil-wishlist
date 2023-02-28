@@ -107,9 +107,7 @@ class DOM {
 
       DOM.toggleLoaderClass(true);
 
-      const offset = ipcRenderer.sendSync('get-titles-offset');
-
-      ipcRenderer.send('search-titles-items', `lmt:${ offset + 100 }`);
+      ipcRenderer.send('get-titles-more');
     });
   }
 

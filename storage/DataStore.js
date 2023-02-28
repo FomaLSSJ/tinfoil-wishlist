@@ -12,10 +12,6 @@ class DataStore extends Store {
     this.items = this.get(this.name, []);
   }
 
-  set offsetValue(value) {
-    this.offset = Number(value);
-  }
-
   get ready() {
     return !isEmpty(this.items);
   }
@@ -83,7 +79,7 @@ class DataStore extends Store {
       case 'lmt':
         const [ limit, offset ] = req.split(',');
         if (!limit) return;
-        this.offsetValue = offset;
+        if (offset) this.offset = offset;
         return this.limit(Number(limit), Number(offset || 0));
       case 'from':
         dateStart = moment(req);

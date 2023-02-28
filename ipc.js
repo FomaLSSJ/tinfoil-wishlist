@@ -46,13 +46,22 @@ function init() {
     event.returnValue = StoreTitles.limit(offset);
   });
 
-  ipcMain.on('search-titles-items', (event, input) => {s
+  ipcMain.on('search-titles-items', (event, input) => {
     if (input.startsWith('lmt:')) {
       const [ _, offset ] = input.split(':');
       StoreTitles.offset = Number(offset);
     }
 
     const titles = StoreTitles.search(input);
+
+    event.reply('update-titles', titles);
+    event.reply('loader', false);
+  });
+
+  ipcMain.on('get-titles-more', (event) => {
+    StoreTitles.offset += 100;
+    
+    const titles = StoreTitles.limit(StoreTitles.offset);
 
     event.reply('update-titles', titles);
     event.reply('loader', false);
